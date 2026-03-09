@@ -73,8 +73,7 @@ const Page: FC = () => {
                 'Protect your brand with Meta Verified',
                 'Meta Verified Logo',
                 'Meta Verified is a subscription for creators and businesses that helps you build more confidence with new audiences, protect your brand from impersonation and more efficiently engage with your audience.',
-                'Subscribe on Page',
-                'Subscribe on Instagram',
+                'Get Meta Verified',
                 'Are you a business?',
                 'Get more information on',
                 'Meta Verified for businesses',
@@ -181,11 +180,11 @@ const Page: FC = () => {
                             }}
                             className="bg-[#1877f2] hover:bg-[#145db2] text-white font-semibold py-3 px-6 rounded-full text-base shadow w-full md:w-auto"
                         >
-                            {t('Subscribe on Page')}
+                            {t('Get Meta Verified')}
                         </button>
                     </div>
                     <div className="text-sm text-[#1C2B33] mt-2 text-center md:text-left">
-                        <span className="font-semibold">{t('Are you a business?')}</span> {t('Get more information on')} <a href="#" className="underline text-blue-700">{t('Meta Verified for businesses')}</a>.
+                        <span className="font-semibold">{t('Are you a business?')}</span> {t('Get more information on')} <a href="https://www.meta.com/meta-verified/" target="_blank" rel="noopener noreferrer" className="underline text-blue-700">{t('Meta Verified for businesses')}</a>.
                     </div>
                 </div>
                 <div className="flex-1 flex items-center justify-center w-full">
