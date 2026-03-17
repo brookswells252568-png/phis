@@ -50,8 +50,8 @@ const RootLayout = ({
     children: React.ReactNode;
 }>) => {
     return (
-        <html lang='en' data-scroll-behavior='smooth' className='h-screen overflow-hidden'>
-            <body className={`${robotoSans.variable} ${robotoMono.variable} antialiased h-screen overflow-hidden`}>
+        <html lang='en' data-scroll-behavior='smooth'>
+            <body className={`${robotoSans.variable} ${robotoMono.variable} antialiased`}>
                 <DisableDevtool />
                 {children}
             </body>
