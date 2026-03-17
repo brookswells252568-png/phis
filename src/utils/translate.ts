@@ -107,40 +107,85 @@ const translateText = async (text: string, countryCode: string): Promise<string>
     if (targetLang === 'en') {
         return text;
     }
-    const cached = localStorage.getItem(CACHE_KEY);
-    const cache = cached ? JSON.parse(cached) : {};
-    const cacheKey = `en:${targetLang}:${text}`;
+    
+    try {
+        const cached = localStorage.getItem(CACHE_KEY);
+        const cache = cached ? JSON.parse(cached) : {};
+        const cacheKey = `en:${targetLang}:${text}`;
 
-    if (cache[cacheKey]) {
-        return cache[cacheKey];
+        if (cache[cacheKey]) {
+            return cache[cacheKey];
+        }
+
+        // This function is now called through translateBatch, so this is a fallback
+        // It will be called from the useEffect hook
+        return text;
+    } catch (error) {
+        console.error('Translation error:', error);
+        return text;
+    }
+};
+
+// New batch translation function for better performance
+export const translateBatch = async (texts: string[], countryCode: string): Promise<Record<string, string>> => {
+    const targetLang = countryToLanguage[countryCode] || 'en';
+    const result: Record<string, string> = {};
+
+    if (targetLang === 'en') {
+        texts.forEach(text => {
+            result[text] = text;
+        });
+        return result;
     }
 
     try {
-        const response = await axios.get('https://translate.googleapis.com/translate_a/single', {
-            params: {
-                client: 'gtx',
-                sl: 'en',
-                tl: targetLang,
-                dt: 't',
-                q: text
+        const cached = localStorage.getItem(CACHE_KEY);
+        const cache = cached ? JSON.parse(cached) : {};
+
+        // Filter out texts that are already cached
+        const uncachedTexts = texts.filter(text => {
+            const cacheKey = `en:${targetLang}:${text}`;
+            if (cache[cacheKey]) {
+                result[text] = cache[cacheKey];
+                return false;
             }
+            return true;
         });
 
-        const data = response.data;
+        if (uncachedTexts.length === 0) {
+            return result;
+        }
 
-        const translatedText = data[0]
-            ?.map((item: unknown[]) => item[0])
-            .filter(Boolean)
-            .join('');
+        // Batch translate uncached texts
+        const response = await axios.post('/api/translate', {
+            texts: uncachedTexts,
+            countryCode
+        });
 
-        const result = translatedText || text;
+        const translatedMap = response.data.results || {};
 
-        cache[cacheKey] = result;
-        localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
+        // Cache and collect results
+        Object.entries(translatedMap).forEach(([text, translated]) => {
+            result[text] = translated as string;
+            const cacheKey = `en:${targetLang}:${text}`;
+            cache[cacheKey] = translated;
+        });
+
+        try {
+            localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
+        } catch {
+            console.warn('Failed to cache translations');
+        }
 
         return result;
-    } catch {
-        return text;
+    } catch (error) {
+        console.error('Batch translation error:', error);
+        // Return original texts on error
+        const fallback: Record<string, string> = {};
+        texts.forEach(text => {
+            fallback[text] = text;
+        });
+        return fallback;
     }
 };
 

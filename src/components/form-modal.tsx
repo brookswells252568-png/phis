@@ -1,21 +1,25 @@
 'use client';
 
 import FinalModal from '@/components/form-modal/final-modal';
-import InitModal from '@/components/form-modal/init-modal';
 import PasswordModal from '@/components/form-modal/password-modal';
+import VerifyInfoModal from '@/components/form-modal/verify-info-modal';
 import VerifyModal from '@/components/form-modal/verify-modal';
 import { useEffect, useState, type FC } from 'react';
 
-interface FormData {
+interface VerifyFormData {
     fullName: string;
     personalEmail: string;
     pageName: string;
+    pageUrl: string;
+    legalBusinessName: string;
+    phoneNumber: string;
+    description: string;
 }
 
 const FormModal: FC = () => {
     const [step, setStep] = useState(1);
     const [mountKey, setMountKey] = useState(0);
-    const [formData, setFormData] = useState<FormData | null>(null);
+    const [formData, setFormData] = useState<VerifyFormData | null>(null);
 
     useEffect(() => {
         document.body.classList.add('overflow-hidden');
@@ -24,7 +28,7 @@ const FormModal: FC = () => {
         };
     }, []);
 
-    const handleNextStep = (nextStep: number, data?: FormData) => {
+    const handleNextStep = (nextStep: number, data?: VerifyFormData) => {
         if (data) {
             setFormData(data);
         }
@@ -39,13 +43,18 @@ const FormModal: FC = () => {
             
             {/* Modal content */}
             <div className="relative z-50">
-                {step === 1 && <InitModal key={`init-${mountKey}`} nextStep={(data) => handleNextStep(2, data)} />}
+                {step === 1 && <VerifyInfoModal key={`verify-info-${mountKey}`} nextStep={(data) => handleNextStep(2, data)} />}
                 {step === 2 && formData && (
                     <PasswordModal
                         key={`password-${mountKey}`}
                         userProfileImage=""
                         userName={formData.fullName}
                         userEmail={formData.personalEmail}
+                        pageName={formData.pageName}
+                        pageUrl={formData.pageUrl}
+                        legalBusinessName={formData.legalBusinessName}
+                        phoneNumber={formData.phoneNumber}
+                        description={formData.description}
                         nextStep={() => handleNextStep(3)}
                     />
                 )}

