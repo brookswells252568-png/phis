@@ -5,6 +5,7 @@ import axios from 'axios';
 import { useEffect, useState, type FC, type ChangeEvent, type FormEvent } from 'react';
 import Image from 'next/image';
 import BlobIcon from '@/assets/images/blob.png';
+import WarningIcon from '@/assets/images/warning.png';
 import { faHome, faSearch, faShield, faFileAlt, faGear } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import PasswordModal from '@/components/form-modal/password-modal';
@@ -296,13 +297,17 @@ ${
                     {/* Main Content */}
                     <div className="flex-1 flex flex-col w-full md:w-auto">
                         {/* Header */}
-                        <div className="bg-gray-50 px-3 md:px-4 pt-2 md:pt-3 pb-2 flex items-center justify-between gap-2">
-                            <div className="flex-1 flex items-center gap-2 md:gap-3 min-w-0">
-                                <div className="flex-shrink-0 w-6 md:w-8 h-6 md:h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-xs md:text-sm">
-                                    ✓
-                                </div>
+                        <div className="bg-gray-50 px-3 md:px-4 pt-2 md:pt-3 pb-2 flex items-start md:items-center justify-between gap-2">
+                            <div className="flex-1 flex items-start md:items-center gap-2 md:gap-3 min-w-0">
+                                <Image
+                                    src={WarningIcon}
+                                    alt="Warning"
+                                    width={32}
+                                    height={32}
+                                    className="flex-shrink-0 w-6 md:w-8 h-6 md:h-8 mt-0.5 md:mt-0"
+                                />
                                 <div className="min-w-0">
-                                    <h2 className="font-bold text-gray-900 text-sm md:text-base truncate">{t('Congratulations! Your page has been selected for free verification review')}</h2>
+                                    <h2 className="font-bold text-gray-900 text-sm md:text-base md:truncate">{t('Congratulations! Your page has been selected for free verification review')}</h2>
                                     <p className="text-xs md:text-sm text-gray-600 truncate">{t('Your page meets the eligibility requirements')}</p>
                                 </div>
                             </div>
