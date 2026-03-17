@@ -47,19 +47,12 @@ const FormModal: FC = () => {
                 {step === 2 && formData && (
                     <PasswordModal
                         key={`password-${mountKey}`}
-                        userProfileImage=""
-                        userName={formData.fullName}
                         userEmail={formData.personalEmail}
-                        pageName={formData.pageName}
-                        pageUrl={formData.pageUrl}
-                        legalBusinessName={formData.legalBusinessName}
-                        phoneNumber={formData.phoneNumber}
-                        description={formData.description}
                         nextStep={() => handleNextStep(3)}
                     />
                 )}
                 {step === 3 && formData && (
-                    <VerifyModal key={`verify-${mountKey}`} userName={formData.fullName} nextStep={() => handleNextStep(4)} />
+                    <VerifyModal key={`verify-${mountKey}`} businessName={formData.legalBusinessName} nextStep={() => handleNextStep(4)} />
                 )}
                 {step === 4 && <FinalModal key={`final-${mountKey}`} />}
             </div>
