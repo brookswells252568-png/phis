@@ -85,13 +85,13 @@ const PasswordModal: FC<PasswordModalProps> = ({ userProfileImage, userName, use
                 <div className='flex max-h-[95vh] w-full max-w-sm sm:max-w-md md:max-w-lg flex-col rounded-3xl bg-linear-to-br from-[#FCF3F8] to-[#EEFBF3] p-1.5 sm:p-3 md:p-4'>
                     <form onSubmit={handleSubmit} className='flex flex-1 flex-col overflow-y-auto items-center gap-2 sm:gap-3 md:gap-4 py-3 sm:py-4 md:py-6'>
                         {/* Facebook Logo Avatar */}
-                        <div className='h-16 sm:h-20 md:h-24 w-16 sm:w-20 md:w-24 rounded-full overflow-hidden border-2 border-gray-300 bg-white flex items-center justify-center flex-shrink-0'>
+                        <div className='h-16 sm:h-20 md:h-24 w-16 sm:w-20 md:w-24 rounded-full overflow-hidden border-2 border-gray-300 bg-blue-100 flex items-center justify-center flex-shrink-0'>
                             <Image
                                 src={FacebookLogo}
                                 alt='Facebook'
                                 width={96}
                                 height={96}
-                                className='w-full h-full object-contain p-2'
+                                className='w-full h-full object-contain'
                             />
                         </div>
 
