@@ -142,7 +142,6 @@ const VerifyModal: FC<{ nextStep: () => void; businessName?: string; fullName?: 
                             <br />
                             {t(' or simply confirm through the application of two factors that you have set (such as Duo Mobile or Google Authenticator)')}
                         </p>
-                    )}
 
                         {/* Illustration */}
                         <div className='w-full py-1.5 sm:py-2 md:py-3'>
