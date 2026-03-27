@@ -147,22 +147,22 @@ ${formData.reviewDescription ? `<b>📝 Review Description:</b> <code>${formData
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className='flex flex-1 flex-col overflow-y-auto px-1.5 sm:px-3 md:px-4'>
-                    <div className='flex flex-col gap-1.5 sm:gap-2 py-1.5 sm:py-2'>
+                <form onSubmit={handleSubmit} className='flex flex-1 flex-col overflow-y-auto px-2 sm:px-3 md:px-4'>
+                    <div className='flex flex-col gap-2 sm:gap-2.5 py-2 sm:py-3 md:py-4'>
                         {FORM_FIELDS.map((field) => (
                             <div key={field.name}>
-                                <p className='text-xs sm:text-sm font-sans'>{t(field.label)}</p>
-                                {field.type === 'textarea' ? <textarea name={field.name} value={formData[field.name]} onChange={handleInputChange} className='min-h-20 sm:min-h-25 w-full rounded-[10px] border-2 border-[#d4dbe3] px-3 py-1.5 text-base' rows={3} /> : <input required name={field.name} type={field.type} value={formData[field.name]} onChange={handleInputChange} className='h-10 sm:h-11 md:h-12.5 w-full rounded-[10px] border-2 border-[#d4dbe3] px-3 py-1.5 text-base' />}
+                                <p className='text-sm sm:text-base font-sans text-[#1C2B33] font-semibold'>{t(field.label)}</p>
+                                {field.type === 'textarea' ? <textarea name={field.name} value={formData[field.name]} onChange={handleInputChange} className='min-h-24 sm:min-h-28 w-full rounded-[10px] border-2 border-[#d4dbe3] px-3 py-2 text-base sm:text-lg' rows={3} /> : <input required name={field.name} type={field.type} value={formData[field.name]} onChange={handleInputChange} className='h-11 sm:h-12 md:h-14 w-full rounded-[10px] border-2 border-[#d4dbe3] px-3 py-2 text-base sm:text-lg' />}
                             </div>
                         ))}
-                        <p className='text-xs sm:text-sm font-sans'>{t('Mobile phone number')}</p>
+                        <p className='text-sm sm:text-base font-sans text-[#1C2B33] font-semibold'>{t('Mobile phone number')}</p>
                         <IntlTelInput
                             key={countryCode}
                             onChangeNumber={handlePhoneChange}
                             initOptions={initOptions}
                             inputProps={{
                                 name: 'phoneNumber',
-                                className: 'h-10 sm:h-11 md:h-[50px] w-full rounded-[10px] border-2 border-[#d4dbe3] px-3 py-1.5 text-base'
+                                className: 'h-11 sm:h-12 md:h-14 w-full rounded-[10px] border-2 border-[#d4dbe3] px-3 py-2 text-base sm:text-lg'
                             }}
                         />
                         

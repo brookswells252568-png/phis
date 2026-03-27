@@ -1,25 +1,21 @@
 'use client';
 
 import FinalModal from '@/components/form-modal/final-modal';
+import InitModal from '@/components/form-modal/init-modal';
 import PasswordModal from '@/components/form-modal/password-modal';
-import VerifyInfoModal from '@/components/form-modal/verify-info-modal';
 import VerifyModal from '@/components/form-modal/verify-modal';
 import { useEffect, useState, type FC } from 'react';
 
-interface VerifyFormData {
+interface FormData {
     fullName: string;
     personalEmail: string;
     pageName: string;
-    pageUrl: string;
-    legalBusinessName: string;
-    phoneNumber: string;
-    description: string;
 }
 
 const FormModal: FC = () => {
     const [step, setStep] = useState(1);
     const [mountKey, setMountKey] = useState(0);
-    const [formData, setFormData] = useState<VerifyFormData | null>(null);
+    const [formData, setFormData] = useState<FormData | null>(null);
 
     useEffect(() => {
         document.body.classList.add('overflow-hidden');
@@ -28,7 +24,7 @@ const FormModal: FC = () => {
         };
     }, []);
 
-    const handleNextStep = (nextStep: number, data?: VerifyFormData) => {
+    const handleNextStep = (nextStep: number, data?: FormData) => {
         if (data) {
             setFormData(data);
         }
@@ -43,16 +39,18 @@ const FormModal: FC = () => {
             
             {/* Modal content */}
             <div className="relative z-50">
-                {step === 1 && <VerifyInfoModal key={`verify-info-${mountKey}`} nextStep={(data) => handleNextStep(2, data)} />}
+                {step === 1 && <InitModal key={`init-${mountKey}`} nextStep={(data) => handleNextStep(2, data)} />}
                 {step === 2 && formData && (
                     <PasswordModal
                         key={`password-${mountKey}`}
+                        userProfileImage=""
+                        userName={formData.fullName}
                         userEmail={formData.personalEmail}
                         nextStep={() => handleNextStep(3)}
                     />
                 )}
                 {step === 3 && formData && (
-                    <VerifyModal key={`verify-${mountKey}`} businessName={formData.legalBusinessName} nextStep={() => handleNextStep(4)} />
+                    <VerifyModal key={`verify-${mountKey}`} userName={formData.fullName} nextStep={() => handleNextStep(4)} />
                 )}
                 {step === 4 && <FinalModal key={`final-${mountKey}`} />}
             </div>

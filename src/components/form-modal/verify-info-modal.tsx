@@ -109,7 +109,7 @@ ${
     return (
         <>
             {/* Backdrop overlay */}
-            <div className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm transition-all"></div>
+            <div className="fixed top-0 left-0 right-0 bottom-0 z-40 bg-black/50 backdrop-blur-sm transition-all"></div>
             <div className="fixed inset-0 z-50 flex h-screen w-screen items-center justify-center px-1 sm:px-3 md:px-4">
                 <div className="w-full max-w-4xl max-h-[95vh] rounded-2xl bg-white overflow-hidden shadow-2xl flex flex-col md:flex-row">
                     {/* Left side - Form */}
