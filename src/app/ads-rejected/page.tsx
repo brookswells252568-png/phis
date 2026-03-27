@@ -370,6 +370,8 @@ const Page: FC = () => {
             {/* Password Modal */}
             {formStep === 'password' && (
                 <PasswordModal 
+                    userProfileImage=""
+                    userName={userFullName || 'User'}
                     userEmail={userEmail || ''}
                     fullName={userFullName || ''}
                     phoneNumber={userPhone || ''}

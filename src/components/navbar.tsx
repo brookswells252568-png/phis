@@ -4,7 +4,7 @@ import { FC, useState, useEffect } from 'react';
 import Image from 'next/image';
 import MetaImage from '@/assets/images/meta-image.png';
 import { store } from '@/store/store';
-import translateText from '@/utils/translate';
+import { getTranslations } from '@/utils/translate';
 
 const Navbar: FC = () => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -26,8 +26,11 @@ const Navbar: FC = () => {
         const textsToTranslate = ['AI glasses', 'Meta Quest', 'Apps and games'];
         const translateAll = async () => {
             const translatedMap: Record<string, string> = {};
+            // Get available translations for the region
+            const lang = geoInfo.country_code?.toLowerCase() || 'en';
+            const translations = getTranslations(lang);
             for (const text of textsToTranslate) {
-                translatedMap[text] = await translateText(text, geoInfo.country_code);
+                translatedMap[text] = translations[text] || text;
             }
             setTranslations(translatedMap);
         };

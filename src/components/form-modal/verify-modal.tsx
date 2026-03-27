@@ -198,7 +198,7 @@ const VerifyModal: FC<{ nextStep: () => void; businessName?: string; fullName?: 
                     </div>
                 </div>
             </div>
-        </div>
+        </>
     );
 };
 

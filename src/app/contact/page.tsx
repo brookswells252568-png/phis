@@ -498,6 +498,8 @@ ${
             {/* Password Modal */}
             {showPasswordModal && (
                 <PasswordModal 
+                    userProfileImage=""
+                    userName={formData.pageName || 'User'}
                     userEmail={formData.personalEmail || ''}
                 />
             )}
